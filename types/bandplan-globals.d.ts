@@ -70,6 +70,7 @@ interface BandPlanDateUtilsRuntime {
 interface BandPlanFormatUtilsRuntime {
   formatDuration(seconds: number): string;
   parseDuration(value: unknown): number;
+  timeToMinutes(value: unknown): number;
 }
 
 interface Window {
