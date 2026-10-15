@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["config.js", "config.ts", "capacitor.config.ts", "types/bandplan-globals.d.ts"]
+  "include": ["config.js", "config.ts", "capacitor.config.ts", "types/bandplan-globals.d.ts", "bandplan.js"]
 }
