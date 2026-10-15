@@ -6,6 +6,7 @@
     "dev": "node server.js",
     "start": "node server.js",
     "build": "node scripts/build.mjs",
+    "typecheck": "npx --yes --package typescript@5.9.3 tsc --noEmit",
     "cap:sync": "npm run build && cap sync",
     "cap:android": "npm run build && cap sync android && cap open android",
     "cap:ios": "npm run build && cap sync ios && cap open ios"
