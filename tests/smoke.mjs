@@ -296,6 +296,16 @@ try {
   }));
 
   assert.equal(result.cloud, true, 'window.BandPlanCloud is not defined');
+  const runtimeDateUtils = await page.evaluate(() => ({
+    loaded: typeof window.BandPlanDateUtils === 'object',
+    formatted: window.BandPlanDateUtils?.toLocalISODate(new Date(2026, 9, 15, 12, 0, 0, 0)),
+    weekday: window.BandPlanDateUtils?.mondayFirstDayIndex('2026-10-15'),
+    relativeDays: window.BandPlanDateUtils?.daysFromToday('2026-10-15', new Date(2026, 9, 14, 12, 0, 0, 0))
+  }));
+  assert.equal(runtimeDateUtils.loaded, true, 'Typed date utilities were not loaded into the running app');
+  assert.equal(runtimeDateUtils.formatted, '2026-10-15', 'Runtime date formatter mismatch');
+  assert.equal(runtimeDateUtils.weekday, 3, 'Runtime Monday-first weekday index mismatch');
+  assert.equal(runtimeDateUtils.relativeDays, 1, 'Runtime calendar-day difference mismatch');
   assert.equal(result.authForm, true, 'Auth form was not rendered');
   assert.equal(result.email, true, 'Email field was not rendered');
   assert.equal(result.password, true, 'Password field was not rendered');
