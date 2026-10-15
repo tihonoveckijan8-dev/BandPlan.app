@@ -14,8 +14,8 @@ declare global {
   }
 }
 
-// WHY: this typed mirror is a migration boundary only. config.js remains the runtime entry point
-// until a later stage can switch script loading without changing the app's boot order.
+// WHY: TypeScript owns the source while the build emits the same classic-script config.js URL,
+// preserving the existing HTML script order and runtime contract.
 (() => {
   'use strict';
   const config: Readonly<BandPlanClientConfig> = Object.freeze({
