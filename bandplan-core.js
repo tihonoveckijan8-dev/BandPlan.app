@@ -100,17 +100,18 @@ const uid = p => (p || 'id') + '_' + Date.now().toString(36) + Math.random().toS
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const pad = n => String(n).padStart(2, '0');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const iso = d => { const x = new Date(d); return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); };
+// WHY: prefer the typed date utility module when loaded; preserve the legacy calculation as a safe fallback.
+const iso = d => window.BandPlanDateUtils ? window.BandPlanDateUtils.toLocalISODate(d) : (() => { const x = new Date(d); return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); })();
 const today = () => iso(new Date());
 const MON = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 const MONF = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
 const WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 const WDF = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
-const DOW = s => (new Date(s + 'T00:00:00').getDay() + 6) % 7;
+const DOW = s => window.BandPlanDateUtils ? window.BandPlanDateUtils.mondayFirstDayIndex(s) : (new Date(s + 'T00:00:00').getDay() + 6) % 7;
 function pdate(s) { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return d.getDate() + ' ' + MON[d.getMonth()]; }
 function pdateFull(s) { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return WDF[DOW(s)] + ', ' + d.getDate() + ' ' + MONF[d.getMonth()] + ' ' + d.getFullYear(); }
 function pdateShort(s) { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return WD[DOW(s)] + ', ' + d.getDate() + ' ' + MON[d.getMonth()]; }
-function daysTo(s) { return Math.round((new Date(s + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 86400000); }
+function daysTo(s) { return window.BandPlanDateUtils ? window.BandPlanDateUtils.daysFromToday(s) : Math.round((new Date(s + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 86400000); }
 function plural(n, a, b, c) { const m = n % 10, h = n % 100; if (m === 1 && h !== 11) return a; if (m >= 2 && m <= 4 && (h < 10 || h >= 20)) return b; return c; }
 function countdown(s) { const n = daysTo(s); if (n === 0) return 'сегодня'; if (n === 1) return 'завтра'; if (n === -1) return 'вчера'; return n > 0 ? 'через ' + n + ' ' + plural(n, 'день', 'дня', 'дней') : Math.abs(n) + ' ' + plural(Math.abs(n), 'день', 'дня', 'дней') + ' назад'; }
 function fmtDur(sec) { sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + pad(sec % 60); }
