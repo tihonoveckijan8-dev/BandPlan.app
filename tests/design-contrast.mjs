@@ -47,8 +47,10 @@ for(const [file,text] of Object.entries(files)){
   for(const m of text.matchAll(hexRx)){
     const lineNumber=text.slice(0,m.index).split('\n').length;
     // Explicit colors are intentional in the custom accent palette and Google brand mark.
-    const colorContext=text.slice(Math.max(0,m.index-1200),Math.min(text.length,m.index+1200));
-    const allowedLegacyColor=(file==='bandplan-core.js' && colorContext.includes('accent-picker-dialog')) || (file==='supabase.js' && lineNumber===527);
+    const accentDialogStart=text.indexOf("case 'accent-custom-open'");
+    const accentDialogEnd=accentDialogStart>=0?text.indexOf("const color=$('#accentModalColor'",accentDialogStart):-1;
+    const inAccentDialog=file==='bandplan-core.js' && accentDialogStart>=0 && accentDialogEnd>accentDialogStart && m.index>=accentDialogStart && m.index<=accentDialogEnd;
+    const allowedLegacyColor=inAccentDialog || (file==='supabase.js' && lineNumber===527);
     if(!allowedLegacyColor)bad.push(file+':'+lineNumber+': '+m[0]);
   }
   if(text.split('\n').some(line=>line.includes('style=') && /(?:color|background|border-color|box-shadow)\s*:/i.test(line))) bad.push(file+': inline color style');
