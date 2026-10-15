@@ -7,8 +7,57 @@ interface BandPlanClientConfig {
   readonly supabasePublishableKey: string;
 }
 
+type BandPlanParticipationStatus = 'yes' | 'maybe' | 'no' | '';
+
+interface BandPlanAuthUser {
+  readonly id: string;
+  readonly email?: string;
+  readonly user_metadata?: Record<string, unknown>;
+}
+
+interface BandPlanCloudLoadResult {
+  readonly state: Record<string, unknown>;
+  readonly updatedAt: string;
+}
+
+/**
+ * Public surface assigned by supabase.js to window.BandPlanCloud.
+ * WHY: keep the browser-facing contract explicit before gradually checking the
+ * legacy core; this declaration does not alter the runtime object or auth flow.
+ */
+interface BandPlanCloudRuntime {
+  initialize?: () => Promise<BandPlanAuthUser | null>;
+  user?: () => BandPlanAuthUser | null;
+  authState?: () => string;
+  load?: () => Promise<BandPlanCloudLoadResult | null>;
+  saveNow?: (state: Record<string, unknown>) => Promise<unknown>;
+  schedule?: (state: Record<string, unknown>) => void;
+  subscribe?: (
+    onState: (state: Record<string, unknown>, updatedAt?: string) => void,
+    onParticipation?: (event: unknown) => void
+  ) => () => void;
+  signOut?: () => Promise<void>;
+  leaveGroup?: () => Promise<unknown>;
+  joinGroup?: (code: string, name: string, roles: string[]) => Promise<unknown>;
+  setEventParticipation?: (
+    eventId: string,
+    status: BandPlanParticipationStatus,
+    updatedAt?: string
+  ) => Promise<unknown>;
+  queueEventParticipation?: (
+    eventId: string,
+    status: BandPlanParticipationStatus,
+    updatedAt?: string
+  ) => Promise<{ queued: true; event_id: string; status: BandPlanParticipationStatus; updated_at: string }>;
+  hasAccountIdentity?: () => Promise<boolean>;
+  markOnboardingComplete?: () => Promise<void>;
+  isJustRegistered?: () => boolean;
+  clearJustRegistered?: () => void;
+}
+
 interface Window {
   BANDPLAN_CONFIG?: Readonly<BandPlanClientConfig>;
+  BandPlanCloud?: BandPlanCloudRuntime;
   __bandplanConfigError?: boolean;
   __bandplanCorePromise?: Promise<unknown>;
   __bandplanEnsureCore?: () => Promise<unknown>;
