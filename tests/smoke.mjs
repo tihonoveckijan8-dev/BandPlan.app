@@ -69,6 +69,19 @@ try {
     assert.equal(dateHelpers.formatted, '2026-10-15', 'Typed date formatter changed local date semantics');
     assert.equal(dateHelpers.weekday, 3, 'Thursday must have Monday-first index 3');
     assert.equal(dateHelpers.relativeDays, 1, 'Calendar-day difference must ignore time of day');
+    const formatHelpers = await page.evaluate(async () => {
+      const helpers = await import('/core/format-utils.js');
+      return {
+        clock: helpers.timeToMinutes('09:45'),
+        midnight: helpers.timeToMinutes('00:00'),
+        invalid: helpers.timeToMinutes('9:5'),
+        whitespace: helpers.timeToMinutes(' 9:05 ')
+      };
+    });
+    assert.equal(formatHelpers.clock, 585, 'Clock time must convert to minutes');
+    assert.equal(formatHelpers.midnight, 0, 'Midnight must convert to zero minutes');
+    assert.equal(formatHelpers.invalid, 0, 'Invalid clock time must preserve legacy zero fallback');
+    assert.equal(formatHelpers.whitespace, 545, 'Clock parser must trim surrounding whitespace');
   }
   try {
     await page.waitForFunction(() => typeof window.BandPlanCloud !== 'undefined', null, {timeout: 15000});
@@ -312,7 +325,9 @@ try {
     rounded: window.BandPlanFormatUtils?.formatDuration(59.6),
     parsed: window.BandPlanFormatUtils?.parseDuration('2:05'),
     fallback: window.BandPlanFormatUtils?.parseDuration('125 seconds'),
-    invalid: window.BandPlanFormatUtils?.parseDuration('not a duration')
+    invalid: window.BandPlanFormatUtils?.parseDuration('not a duration'),
+    clock: window.BandPlanFormatUtils?.timeToMinutes('09:45'),
+    invalidClock: window.BandPlanFormatUtils?.timeToMinutes('9:5')
   }));
   assert.equal(runtimeFormatUtils.loaded, true, 'Typed duration utilities were not loaded into the running app');
   assert.equal(runtimeFormatUtils.formatted, '2:05', 'Duration formatter mismatch');
@@ -320,6 +335,8 @@ try {
   assert.equal(runtimeFormatUtils.parsed, 125, 'mm:ss duration parsing mismatch');
   assert.equal(runtimeFormatUtils.fallback, 125, 'Integer fallback parsing mismatch');
   assert.equal(runtimeFormatUtils.invalid, 0, 'Invalid duration must preserve legacy zero fallback');
+  assert.equal(runtimeFormatUtils.clock, 585, 'Runtime clock parser mismatch');
+  assert.equal(runtimeFormatUtils.invalidClock, 0, 'Invalid runtime clock must preserve legacy zero fallback');
   assert.equal(result.authForm, true, 'Auth form was not rendered');
   assert.equal(result.email, true, 'Email field was not rendered');
   assert.equal(result.password, true, 'Password field was not rendered');
