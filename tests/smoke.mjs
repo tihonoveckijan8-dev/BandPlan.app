@@ -54,19 +54,22 @@ page.on('pageerror', error => pageErrors.push(error.message));
 
 try {
   await page.goto('http://127.0.0.1:4173/?bandplan-test=1', {waitUntil:'domcontentloaded'});
-  // WHY: execute the new typed date module from the production build and pin its legacy-compatible local-calendar behavior.
-  const dateHelpers = await page.evaluate(async () => {
-    const helpers = await import('/core/date-utils.js');
-    const sample = new Date(2026, 9, 15, 12, 0, 0, 0);
-    return {
-      formatted: helpers.toLocalISODate(sample),
-      weekday: helpers.mondayFirstDayIndex('2026-10-15'),
-      relativeDays: helpers.daysFromToday('2026-10-15', new Date(2026, 9, 14, 12, 0, 0, 0))
-    };
-  });
-  assert.equal(dateHelpers.formatted, '2026-10-15', 'Typed date formatter changed local date semantics');
-  assert.equal(dateHelpers.weekday, 3, 'Thursday must have Monday-first index 3');
-  assert.equal(dateHelpers.relativeDays, 1, 'Calendar-day difference must ignore time of day');
+  // WHY: direct source-mode smoke runs do not have a transpiled .js module; CI always builds dist first.
+  if (root === join(projectRoot, 'dist')) {
+    // WHY: execute the new typed date module from the production build and pin its legacy-compatible local-calendar behavior.
+    const dateHelpers = await page.evaluate(async () => {
+      const helpers = await import('/core/date-utils.js');
+      const sample = new Date(2026, 9, 15, 12, 0, 0, 0);
+      return {
+        formatted: helpers.toLocalISODate(sample),
+        weekday: helpers.mondayFirstDayIndex('2026-10-15'),
+        relativeDays: helpers.daysFromToday('2026-10-15', new Date(2026, 9, 14, 12, 0, 0, 0))
+      };
+    });
+    assert.equal(dateHelpers.formatted, '2026-10-15', 'Typed date formatter changed local date semantics');
+    assert.equal(dateHelpers.weekday, 3, 'Thursday must have Monday-first index 3');
+    assert.equal(dateHelpers.relativeDays, 1, 'Calendar-day difference must ignore time of day');
+  }
   try {
     await page.waitForFunction(() => typeof window.BandPlanCloud !== 'undefined', null, {timeout: 15000});
   } catch (error) {
