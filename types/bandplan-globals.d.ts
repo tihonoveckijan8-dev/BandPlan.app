@@ -67,7 +67,13 @@ interface BandPlanDateUtilsRuntime {
   daysFromToday(dateString: string, now?: Date): number;
 }
 
+interface BandPlanFormatUtilsRuntime {
+  formatDuration(seconds: number): string;
+  parseDuration(value: unknown): number;
+}
+
 interface Window {
+  BandPlanFormatUtils?: BandPlanFormatUtilsRuntime;
   BandPlanDateUtils?: BandPlanDateUtilsRuntime;
   BANDPLAN_CONFIG?: Readonly<BandPlanClientConfig>;
   BandPlanCloud?: BandPlanCloudRuntime;
