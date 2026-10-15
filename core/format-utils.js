@@ -14,3 +14,8 @@ export function parseDuration(value) {
   const parsed = parseInt(String(value), 10);
   return Number.isNaN(parsed) ? 0 : parsed;
 }
+
+export function timeToMinutes(value) {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(String(value || '').trim());
+  return match ? Number(match[1]) * 60 + Number(match[2]) : 0;
+}
