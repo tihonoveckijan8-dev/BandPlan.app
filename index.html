@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="color-scheme" content="light dark">
+
+<script>
+  window.__bandplanSupabaseVersion = '2.117.2';
+  window.__bandplanSupabaseFallback = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js';
+</script>
+<meta name="theme-color">
+<link rel="stylesheet" href="bandplan.css?v=20261005-32">
+<script id="bandplan-early-sw">
+try{
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    // WHY: registration errors are surfaced to the app instead of being silently swallowed.
+    navigator.serviceWorker.getRegistration(new URL('./', location.href).href).then(function(existing){
+      // WHY: reuse the active registration to avoid duplicate registration work in installed PWAs.
+      return existing || navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+    }).catch(function(error){ window.__bandplanPwaError = error?.message || 'Не удалось зарегистрировать Service Worker'; window.dispatchEvent(new CustomEvent('bandplan:pwa-error',{detail:window.__bandplanPwaError})); });
+    // WHY: the first controller acquisition on a fresh install must not trigger a pointless reload loop.
+    let bpController = navigator.serviceWorker.controller;
+    let bpHadController = !!bpController;
+    navigator.serviceWorker.addEventListener('controllerchange', function(event){
+      const nextController = event?.target?.controller || navigator.serviceWorker.controller;
+      if (!bpHadController) { bpHadController = true; bpController = nextController; return; }
+      if (!nextController || nextController === bpController) return;
+      bpController = nextController;
+      location.reload();
+    });
+  }
+}catch(e){}
+</script>
+<script id="bandplan-boot-init">
+try{
+var bpDoc=document.documentElement,bpBoot=JSON.parse(localStorage.getItem('bandplan.boot')||'null'),bpStoredAccent=localStorage.getItem('accent')||'',bpThemeIds=['light','dark','amoled'];
+var bpTheme=(bpBoot&&bpThemeIds.indexOf(bpBoot.theme)>=0)?bpBoot.theme:(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');bpDoc.dataset.theme=bpTheme;
+var bpCss=getComputedStyle(bpDoc),bpThemeColor=bpCss.getPropertyValue('--theme-color-'+bpTheme).trim()||bpCss.getPropertyValue('--theme-color-light').trim(),bpPresetIds=['red','orange','amber','green','teal','blue','indigo','purple','pink'];
+var bpStoredPreset=bpPresetIds.indexOf(bpStoredAccent.toLowerCase())>=0?bpStoredAccent.toLowerCase():'',bpPreset=(bpBoot&&bpPresetIds.indexOf(bpBoot.accentPreset)>=0)?bpBoot.accentPreset:bpStoredPreset,bpPresetColor=bpPreset?bpCss.getPropertyValue('--accent-preset-'+bpPreset+'-'+bpTheme).trim():'';
+var bpAccent=/^#[0-9a-fA-F]{6}$/.test(bpStoredAccent)?bpStoredAccent.toUpperCase():(/^#[0-9a-fA-F]{6}$/.test(bpBoot&&bpBoot.accent||'')?bpBoot.accent.toUpperCase():(bpPresetColor||bpCss.getPropertyValue('--accent-default').trim()));
+var bpWhite=bpCss.getPropertyValue('--token-white').trim(),bpBlack=bpCss.getPropertyValue('--token-black').trim();
+function bpLum(hex){var n=parseInt(hex.slice(1),16),rgb=[n>>16&255,n>>8&255,n&255].map(function(v){v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]}
+function bpContrast(a,b){var x=bpLum(a),y=bpLum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+var bpOn=bpContrast(bpAccent,bpWhite)>=bpContrast(bpAccent,bpBlack)?bpWhite:bpBlack;bpDoc.style.setProperty('--accent',bpAccent);bpDoc.style.setProperty('--accent-contrast',bpOn);bpDoc.style.setProperty('--accent-on-bg',bpAccent);bpDoc.style.setProperty('--accent-text',bpAccent);
+document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.setAttribute('content',bpThemeColor)});
+}catch(e){console.error('BandPlan early theme bootstrap failed:',e)}
+</script>
+<style id="bandplan-auth-lock">html.bp-auth-required .app,html.bp-auth-required .bottom-nav{visibility:hidden!important;pointer-events:none!important}</style>
+
+
+<meta name="description" content="BandPlan — операционная система музыкального коллектива: расписание, репертуар с аккордами и динамикой партий, сет-листы и сценический режим. Работает офлайн.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>BandPlan — Music Group OS</title>
+<link rel="preload" href="fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="manifest" href="manifest.webmanifest?v=20261008-splash4">
+<link rel="icon" type="image/png" href="icon-192.png?v=3">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=waves-bars-3">
+<meta name="application-name" content="BandPlan">
+<meta name="apple-mobile-web-app-title" content="BandPlan">
+<meta name="format-detection" content="telephone=no">
+<link rel="preload" href="vendor/supabase.min.js" as="script">
+
+<link rel="modulepreload" href="bandplan-core.js">
+
+</head>
+<body data-route="calendar">
+<div id="boot" class="boot" role="status" aria-live="polite" aria-label="Загрузка BandPlan">
+  <!-- WHY: Boot.stage()/fail() target these stable elements; keep all boot UI inside one replaceable container. -->
+  <div class="boot-core">
+  <div id="bootStage" class="boot-stage">Запускаем BandPlan</div>
+  <div class="boot-progress" aria-hidden="true"><div id="bootBar" class="boot-bar"></div></div>
+  <div class="boot-shell" aria-hidden="true">
+    <aside class="boot-sidebar"><div class="boot-brand"><i></i><b></b></div><div class="boot-nav"><i></i><i></i><i></i><i></i><i></i></div></aside>
+    <div class="boot-main"><div class="boot-head"><b></b><i></i></div><div class="boot-content"><div class="boot-title"><b></b><i></i></div><div class="boot-events"><i></i><i></i><i></i></div></div></div>
+  </div>
+  <div class="boot-slow" id="bootSlow" hidden><p>Подключение занимает дольше обычного</p><div class="boot-acts"><button type="button" id="bootOffline">Продолжить офлайн</button><button type="button" id="bootRetry">Повторить</button></div></div>
+  </div>
+</div>
+
+<a class="skip-link" href="#view">Перейти к содержимому</a>
+
+<div class="app" id="app" inert aria-busy="true">
+  <!-- ══ SIDEBAR (≥1024px) ══ -->
+  <aside class="sidebar" aria-label="Основная навигация">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">BP</div>
+      <div class="brand-txt">
+        <div class="brand-name">BandPlan</div>
+        <div class="brand-sub" id="brandBand">Моя группа</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="sideNav"></nav>
+
+    <div class="side-profile" id="sideProfile"></div>
+
+    <div class="sidebar-foot">
+      <button class="btn btn-secondary btn-block" type="button" data-act="theme-toggle" id="themeQuick"></button>
+      <button class="btn btn-primary btn-block" type="button" data-act="scene-quick" id="sceneQuick"></button>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+    <div class="page-head" id="pageHead"></div>
+    <div class="content" id="view" tabindex="-1"></div>
+  </main>
+</div>
+
+<!-- ══ BOTTOM NAV (mobile) ══ -->
+<nav class="bottom-nav" id="botNav" aria-label="Навигация по разделам"></nav>
+
+<!-- ══ SCENE ══ -->
+<div class="scene" id="scene" role="dialog" aria-modal="true" aria-label="Сценический режим" aria-hidden="true">
+  <div class="scene-top">
+    <div class="scene-title"><h2 id="scTitle">—</h2><p id="scMeta"></p><div id="scPosition" class="scene-position" aria-live="polite"></div></div>
+    <button class="sbtn" type="button" data-act="scene-close" aria-label="Закрыть сценический режим"></button>
+  </div>
+  <div class="scene-dyn" id="scDyn" aria-label="Динамика вашей партии"></div>
+  <div class="scene-body" id="scBody" tabindex="0"></div>
+  <div class="scene-bar" role="progressbar" aria-label="Прогресс программы"><i id="scBar"></i></div>
+  <div class="scene-ctrl">
+    <button class="sbtn" type="button" data-act="scene-prev" aria-label="Предыдущая песня"></button>
+    <button class="sbtn" type="button" data-act="scene-auto" aria-label="Автопрокрутка"></button>
+    <div class="sctl"><button type="button" data-act="scene-speed" data-d="-15" aria-label="Медленнее">−</button><span id="scSpeed">60</span><button type="button" data-act="scene-speed" data-d="15" aria-label="Быстрее">+</button></div>
+    <div class="sctl"><button type="button" data-act="scene-font" data-d="-2" aria-label="Уменьшить шрифт">A−</button><span id="scFont">26</span><button type="button" data-act="scene-font" data-d="2" aria-label="Увеличить шрифт">A+</button></div>
+    <div class="sctl"><button type="button" data-act="scene-trans" data-d="-1" aria-label="Транспонировать ниже">♭</button><span id="scTrans">0</span><button type="button" data-act="scene-trans" data-d="1" aria-label="Транспонировать выше">♯</button></div>
+    <button class="sbtn" type="button" id="scChords" data-act="scene-chords" aria-pressed="true" aria-label="Показать или скрыть аккорды">Am</button>
+    <button class="sbtn" type="button" data-act="scene-next" aria-label="Следующая песня"></button>
+    <button class="sbtn" type="button" data-act="scene-fs" aria-label="Полноэкранный режим"></button>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING ══ -->
+<div class="onb" id="onb" role="dialog" aria-modal="true" aria-label="Первоначальная настройка" aria-hidden="true"></div>
+
+<div class="overlay" id="modalOverlay" role="presentation"></div>
+<div class="toast-stack" id="toasts" role="region" aria-live="polite" aria-label="Уведомления"></div>
+<div class="print-area" id="printArea"></div>
+<input type="file" id="fileIn" accept="application/json,.json" hidden>
+<noscript><div class="noscript" role="alert"><strong>BandPlan</strong><p>Для работы приложения необходим JavaScript.</p></div></noscript>
+
+<script defer src="vendor/supabase.min.js" onerror="this.onerror=null;this.src=window.__bandplanSupabaseFallback"></script>
+<script defer src="config.js"></script>
+<script defer src="supabase.js"></script>
+<script defer src="bandplan.js?v=20261005-4"></script>
+</body>
+</html>
