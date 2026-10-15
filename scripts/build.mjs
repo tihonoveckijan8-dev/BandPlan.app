@@ -70,5 +70,17 @@ await build({
   charset:'utf8'
 });
 
+// WHY: emit typed duration helpers as a standalone module; the classic core can consume them without bundling the whole app.
+await build({
+  entryPoints:[path.join(root, 'core/format-utils.ts')],
+  outfile:path.join(typedCoreDir, 'format-utils.js'),
+  bundle:false,
+  format:'esm',
+  minify:true,
+  target:['es2020','safari15'],
+  legalComments:'none',
+  charset:'utf8'
+});
+
 await writeFile(path.join(out, '.nojekyll'), '');
 console.log('BandPlan production build complete:', out);
