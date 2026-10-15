@@ -35,7 +35,7 @@ app.use(express.static(__dirname, {
 // WHY: SPA fallback applies only to GET navigation paths without a file extension.
 app.use((req, res, next) => {
   if (req.method !== 'GET' || path.extname(req.path)) return res.status(404).type('text').send('Not Found');
-  res.sendFile(path.join(__dirname, 'index.html'));
+  return res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, HOST, () => {
