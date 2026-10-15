@@ -10,6 +10,7 @@ on:
       - migration/typescript-stage-4
       - migration/typescript-stage-5
       - migration/typescript-stage-6
+      - migration/typescript-stage-7
   push:
     branches:
       - migration/typescript-stage-1
@@ -18,6 +19,7 @@ on:
       - migration/typescript-stage-4
       - migration/typescript-stage-5
       - migration/typescript-stage-6
+      - migration/typescript-stage-7
 
 permissions:
   contents: read
