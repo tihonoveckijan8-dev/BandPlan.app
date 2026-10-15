@@ -6,7 +6,7 @@
 
 /** Preserve the legacy core's local-calendar YYYY-MM-DD formatting. */
 export function toLocalISODate(value: string | number | Date): string {
-  const date = new Date(value);
+  const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
   const pad2 = (part: number): string => String(part).padStart(2, '0');
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
