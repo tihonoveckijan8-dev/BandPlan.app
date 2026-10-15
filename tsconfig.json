@@ -12,7 +12,8 @@
     "checkJs": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true
   },
   "include": [
     "config.js",
