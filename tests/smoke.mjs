@@ -70,7 +70,7 @@ try {
   }));
   assert.equal(publicConfig.configError, false, 'Public client configuration was rejected');
   assert.ok(publicConfig.config, 'Public client configuration was not loaded');
-  assert.match(publicConfig.config.supabaseUrl, /^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/i, 'Supabase URL shape changed');
+  assert.ok(/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(publicConfig.config.supabaseUrl), 'Supabase URL shape changed');
   assert.match(publicConfig.config.supabasePublishableKey, /^sb_publishable_[A-Za-z0-9_-]+$/, 'Publishable key shape changed');
   assert.equal(publicConfig.frozen, true, 'Public client configuration is no longer immutable');
   // WHY: auth initialization may legitimately start the core before this assertion; test the public loader contract, not timing/session races.
