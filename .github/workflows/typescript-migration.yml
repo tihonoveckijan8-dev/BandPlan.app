@@ -3,10 +3,10 @@ name: TypeScript migration checks
 on:
   pull_request:
     branches:
-      - migration/import-grouppp-baseline
+      - main
   push:
     branches:
-      - migration/typescript-stage-1
+      - migration/main-typescript-stage-1
 
 permissions:
   contents: read
