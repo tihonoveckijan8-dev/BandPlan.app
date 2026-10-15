@@ -5,7 +5,7 @@ import { extname, join, normalize } from 'node:path';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
-const root = process.cwd();
+// WHY: smoke-test the actual production artifact when available, falling back to source for direct local runs.\nconst projectRoot = process.cwd();\nconst root = existsSync(join(projectRoot, 'dist', 'index.html')) ? join(projectRoot, 'dist') : projectRoot;
 const mime = {
   '.html':'text/html; charset=utf-8',
   '.js':'text/javascript; charset=utf-8',
