@@ -114,9 +114,12 @@ function pdateShort(s) { if (!s) return ''; const d = new Date(s + 'T00:00:00');
 function daysTo(s) { return window.BandPlanDateUtils ? window.BandPlanDateUtils.daysFromToday(s) : Math.round((new Date(s + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 86400000); }
 function plural(n, a, b, c) { const m = n % 10, h = n % 100; if (m === 1 && h !== 11) return a; if (m >= 2 && m <= 4 && (h < 10 || h >= 20)) return b; return c; }
 function countdown(s) { const n = daysTo(s); if (n === 0) return 'сегодня'; if (n === 1) return 'завтра'; if (n === -1) return 'вчера'; return n > 0 ? 'через ' + n + ' ' + plural(n, 'день', 'дня', 'дней') : Math.abs(n) + ' ' + plural(Math.abs(n), 'день', 'дня', 'дней') + ' назад'; }
-function fmtDur(sec) { sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + pad(sec % 60); }
-function durParse(v) { const m = /^(\d+):(\d{1,2})$/.exec(String(v || '').trim()); if (m) return (+m[1]) * 60 + (+m[2]); const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
-function mins(t) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim()); return m ? (+m[1]) * 60 + (+m[2]) : 0; }
+// WHY: use typed formatting when available; keep the original implementation as a fallback.
+function fmtDur(sec) { return window.BandPlanFormatUtils ? window.BandPlanFormatUtils.formatDuration(sec) : (sec = Math.round(sec || 0), Math.floor(sec / 60) + ':' + pad(sec % 60)); }
+// WHY: use typed parsing when available; keep the original implementation as a fallback.
+function durParse(v) { if (window.BandPlanFormatUtils) return window.BandPlanFormatUtils.parseDuration(v); const m = /^(\d+):(\d{1,2})$/.exec(String(v || '').trim()); if (m) return (+m[1]) * 60 + (+m[2]); const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+// WHY: use the typed clock parser when available; keep the legacy parser as a fallback for cached/offline shells.
+function mins(t) { return window.BandPlanFormatUtils ? window.BandPlanFormatUtils.timeToMinutes(t) : (() => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim()); return m ? (+m[1]) * 60 + (+m[2]) : 0; })(); }
 function debounce(fn, ms) { let t; return function () { const a = arguments, c = this; clearTimeout(t); t = setTimeout(() => fn.apply(c, a), ms || 250); }; }
 async function copyTextReliable(value) {
   const text = String(value == null ? '' : value);
