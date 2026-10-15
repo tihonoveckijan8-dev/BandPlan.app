@@ -6,7 +6,7 @@ on:
       - main
   push:
     branches:
-      - migration/main-typescript-stage-10
+      - migration/main-typescript-stage-11
 
 permissions:
   contents: read
