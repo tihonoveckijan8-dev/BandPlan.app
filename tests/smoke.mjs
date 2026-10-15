@@ -306,6 +306,20 @@ try {
   assert.equal(runtimeDateUtils.formatted, '2026-10-15', 'Runtime date formatter mismatch');
   assert.equal(runtimeDateUtils.weekday, 3, 'Runtime Monday-first weekday index mismatch');
   assert.equal(runtimeDateUtils.relativeDays, 1, 'Runtime calendar-day difference mismatch');
+  const runtimeFormatUtils = await page.evaluate(() => ({
+    loaded: typeof window.BandPlanFormatUtils === 'object',
+    formatted: window.BandPlanFormatUtils?.formatDuration(125),
+    rounded: window.BandPlanFormatUtils?.formatDuration(59.6),
+    parsed: window.BandPlanFormatUtils?.parseDuration('2:05'),
+    fallback: window.BandPlanFormatUtils?.parseDuration('125 seconds'),
+    invalid: window.BandPlanFormatUtils?.parseDuration('not a duration')
+  }));
+  assert.equal(runtimeFormatUtils.loaded, true, 'Typed duration utilities were not loaded into the running app');
+  assert.equal(runtimeFormatUtils.formatted, '2:05', 'Duration formatter mismatch');
+  assert.equal(runtimeFormatUtils.rounded, '1:00', 'Duration rounding mismatch');
+  assert.equal(runtimeFormatUtils.parsed, 125, 'mm:ss duration parsing mismatch');
+  assert.equal(runtimeFormatUtils.fallback, 125, 'Integer fallback parsing mismatch');
+  assert.equal(runtimeFormatUtils.invalid, 0, 'Invalid duration must preserve legacy zero fallback');
   assert.equal(result.authForm, true, 'Auth form was not rendered');
   assert.equal(result.email, true, 'Email field was not rendered');
   assert.equal(result.password, true, 'Password field was not rendered');

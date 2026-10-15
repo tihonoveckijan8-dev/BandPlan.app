@@ -26,9 +26,13 @@ interface BandPlanLoaderWindow extends Window {
     const loadDateUtils = (): Promise<void> => import('./core/date-utils.js')
       .then((module: typeof import('./core/date-utils.js')) => { browserWindow.BandPlanDateUtils = module; })
       .catch(() => undefined);
+    // WHY: duration helpers follow the same optional-module pattern to preserve legacy startup if a utility asset is unavailable.
+    const loadFormatUtils = (): Promise<void> => import('./core/format-utils.js')
+      .then((module: typeof import('./core/format-utils.js')) => { browserWindow.BandPlanFormatUtils = module; })
+      .catch(() => undefined);
 
     // WHY: use a variable path so this small module can be checked independently of the legacy core.
-    browserWindow.__bandplanCorePromise = loadDateUtils().then(() => import(coreModulePath)).catch((error: unknown) => {
+    browserWindow.__bandplanCorePromise = Promise.all([loadDateUtils(), loadFormatUtils()]).then(() => import(coreModulePath)).catch((error: unknown) => {
       console.error('BandPlan core failed to load:', error);
       const boot = document.getElementById('boot') as BandPlanBootContainer | null;
       if (boot) {

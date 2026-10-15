@@ -27,6 +27,8 @@
     "server.js",
     "tests/types/bandplan-cloud-contract.ts",
     "core/date-utils.ts",
-    "tests/types/bandplan-date-utils-contract.ts"
+    "tests/types/bandplan-date-utils-contract.ts",
+    "core/format-utils.ts",
+    "tests/types/bandplan-format-utils-contract.ts"
   ]
 }
