@@ -56,5 +56,19 @@ for (const file of ['bandplan.js','bandplan-core.js','config.js','supabase.js','
   });
 }
 
+// WHY: emit the isolated TypeScript date helpers as a standalone ES module so browser smoke tests can exercise their runtime behavior without wiring them into the legacy core.
+const typedCoreDir = path.join(out, 'core');
+await mkdir(typedCoreDir, {recursive:true});
+await build({
+  entryPoints:[path.join(root, 'core/date-utils.ts')],
+  outfile:path.join(typedCoreDir, 'date-utils.js'),
+  bundle:false,
+  format:'esm',
+  minify:true,
+  target:['es2020','safari15'],
+  legalComments:'none',
+  charset:'utf8'
+});
+
 await writeFile(path.join(out, '.nojekyll'), '');
 console.log('BandPlan production build complete:', out);
