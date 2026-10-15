@@ -14,7 +14,8 @@
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
     "esbuild": "0.25.9",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "@types/express": "^5.0.3"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
