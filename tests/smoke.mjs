@@ -62,6 +62,17 @@ try {
     throw new Error('BandPlanCloud bootstrap timeout: ' + JSON.stringify({diagnostics, consoleErrors, pageErrors, cause: error.message}));
   }
   await page.waitForSelector('#bpAuthGate', {state:'visible', timeout: 15000});
+  // WHY: guard the TypeScript-built config artifact's classic-script runtime contract.
+  const publicConfig = await page.evaluate(() => ({
+    config: window.BANDPLAN_CONFIG,
+    frozen: !!window.BANDPLAN_CONFIG && Object.isFrozen(window.BANDPLAN_CONFIG),
+    configError: window.__bandplanConfigError || false
+  }));
+  assert.equal(publicConfig.configError, false, 'Public client configuration was rejected');
+  assert.ok(publicConfig.config, 'Public client configuration was not loaded');
+  assert.match(publicConfig.config.supabaseUrl, /^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/i, 'Supabase URL shape changed');
+  assert.match(publicConfig.config.supabasePublishableKey, /^sb_publishable_[A-Za-z0-9_-]+$/, 'Publishable key shape changed');
+  assert.equal(publicConfig.frozen, true, 'Public client configuration is no longer immutable');
   // WHY: auth initialization may legitimately start the core before this assertion; test the public loader contract, not timing/session races.
   const lazyCore = await page.evaluate(() => ({ ensureCore: typeof window.__bandplanEnsureCore === 'function' }));
   assert.equal(lazyCore.ensureCore, true, 'Lazy core loader missing');
