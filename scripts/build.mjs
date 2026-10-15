@@ -29,6 +29,8 @@ for (const dir of ['assets', 'fonts', 'vendor']) {
 }
 
 for (const file of ['bandplan.js','bandplan-core.js','config.js','supabase.js','sw.js','bandplan.css']) {
+  // WHY: compile the small TypeScript loader into the existing public filename; HTML and SW URLs stay unchanged.
+  const entryFile = file === 'bandplan.js' ? 'bandplan-entry.ts' : file;
   // WHY: generate a fresh shell cache namespace on every build instead of relying on manual SW edits.
   if (file === 'sw.js') {
     const source = await readFile(path.join(root, file), 'utf8');
@@ -41,7 +43,7 @@ for (const file of ['bandplan.js','bandplan-core.js','config.js','supabase.js','
     continue;
   }
   await build({
-    entryPoints:[path.join(root,file)],
+    entryPoints:[path.join(root,entryFile)],
     outfile:path.join(out,file),
     bundle:false,
     minify:true,
