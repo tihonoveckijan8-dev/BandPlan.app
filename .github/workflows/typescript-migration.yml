@@ -28,3 +28,9 @@ jobs:
         run: npm run typecheck
       - name: Production build
         run: npm run build
+      - name: Install smoke-test browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Smoke tests
+        run: node tests/smoke.mjs
