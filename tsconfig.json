@@ -29,6 +29,7 @@
     "core/date-utils.ts",
     "tests/types/bandplan-date-utils-contract.ts",
     "core/format-utils.ts",
-    "tests/types/bandplan-format-utils-contract.ts"
+    "tests/types/bandplan-format-utils-contract.ts",
+    "tests/types/bandplan-clock-utils-contract.ts"
   ]
 }
