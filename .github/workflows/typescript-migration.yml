@@ -6,11 +6,13 @@ on:
       - migration/import-grouppp-baseline
       - migration/typescript-stage-1
       - migration/typescript-stage-2
+      - migration/typescript-stage-3
   push:
     branches:
       - migration/typescript-stage-1
       - migration/typescript-stage-2
       - migration/typescript-stage-3
+      - migration/typescript-stage-4
 
 permissions:
   contents: read
