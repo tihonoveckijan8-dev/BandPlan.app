@@ -118,7 +118,8 @@ function countdown(s) { const n = daysTo(s); if (n === 0) return 'сегодня
 function fmtDur(sec) { return window.BandPlanFormatUtils ? window.BandPlanFormatUtils.formatDuration(sec) : (sec = Math.round(sec || 0), Math.floor(sec / 60) + ':' + pad(sec % 60)); }
 // WHY: use typed parsing when available; keep the original implementation as a fallback.
 function durParse(v) { if (window.BandPlanFormatUtils) return window.BandPlanFormatUtils.parseDuration(v); const m = /^(\d+):(\d{1,2})$/.exec(String(v || '').trim()); if (m) return (+m[1]) * 60 + (+m[2]); const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
-function mins(t) { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim()); return m ? (+m[1]) * 60 + (+m[2]) : 0; }
+// WHY: use the typed clock parser when available; keep the legacy parser as a fallback for cached/offline shells.
+function mins(t) { return window.BandPlanFormatUtils ? window.BandPlanFormatUtils.timeToMinutes(t) : (() => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim()); return m ? (+m[1]) * 60 + (+m[2]) : 0; })(); }
 function debounce(fn, ms) { let t; return function () { const a = arguments, c = this; clearTimeout(t); t = setTimeout(() => fn.apply(c, a), ms || 250); }; }
 async function copyTextReliable(value) {
   const text = String(value == null ? '' : value);
