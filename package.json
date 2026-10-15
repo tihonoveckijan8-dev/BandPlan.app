@@ -6,13 +6,15 @@
     "dev": "node server.js",
     "start": "node server.js",
     "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
     "cap:sync": "npm run build && cap sync",
     "cap:android": "npm run build && cap sync android && cap open android",
     "cap:ios": "npm run build && cap sync ios && cap open ios"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
-    "esbuild": "0.25.9"
+    "esbuild": "0.25.9",
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
