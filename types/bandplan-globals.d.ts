@@ -61,7 +61,14 @@ interface BandPlanCloudRuntime {
   clearJustRegistered?: () => void;
 }
 
+interface BandPlanDateUtilsRuntime {
+  toLocalISODate(value: string | number | Date): string;
+  mondayFirstDayIndex(dateString: string): number;
+  daysFromToday(dateString: string, now?: Date): number;
+}
+
 interface Window {
+  BandPlanDateUtils?: BandPlanDateUtilsRuntime;
   BANDPLAN_CONFIG?: Readonly<BandPlanClientConfig>;
   BandPlanCloud?: BandPlanCloudRuntime;
   __bandplanConfigError?: boolean;
