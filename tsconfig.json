@@ -5,9 +5,11 @@
     "moduleResolution": "Bundler",
     "lib": ["ES2020", "DOM"],
     "strict": true,
+    "allowJs": true,
+    "checkJs": true,
     "noEmit": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["config.ts", "capacitor.config.ts"]
+  "include": ["config.js", "config.ts", "capacitor.config.ts"]
 }
