@@ -5,10 +5,12 @@ on:
     branches:
       - migration/import-grouppp-baseline
       - migration/typescript-stage-1
+      - migration/typescript-stage-2
   push:
     branches:
       - migration/typescript-stage-1
       - migration/typescript-stage-2
+      - migration/typescript-stage-3
 
 permissions:
   contents: read
