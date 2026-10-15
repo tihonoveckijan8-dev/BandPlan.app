@@ -20,6 +20,7 @@
   "include": [
     "config.js",
     "config.ts",
+    "bandplan-entry.ts",
     "capacitor.config.ts",
     "types/bandplan-globals.d.ts",
     "scripts/build.mjs",
