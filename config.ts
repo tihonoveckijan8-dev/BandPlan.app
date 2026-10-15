@@ -2,17 +2,8 @@
 
 export {};
 
-interface BandPlanClientConfig {
-  readonly supabaseUrl: string;
-  readonly supabasePublishableKey: string;
-}
-
-declare global {
-  interface Window {
-    BANDPLAN_CONFIG?: Readonly<BandPlanClientConfig>;
-    __bandplanConfigError?: boolean;
-  }
-}
+// WHY: the public browser-global contract lives in types/bandplan-globals.d.ts so the loader,
+// config source, and smoke-test types share one definition instead of drifting apart.
 
 // WHY: TypeScript owns the source while the build emits the same classic-script config.js URL,
 // preserving the existing HTML script order and runtime contract.
