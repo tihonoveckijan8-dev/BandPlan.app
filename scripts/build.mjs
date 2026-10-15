@@ -30,7 +30,8 @@ for (const dir of ['assets', 'fonts', 'vendor']) {
 
 for (const file of ['bandplan.js','bandplan-core.js','config.js','supabase.js','sw.js','bandplan.css']) {
   // WHY: compile the small TypeScript loader into the existing public filename; HTML and SW URLs stay unchanged.
-  const entryFile = file === 'bandplan.js' ? 'bandplan-entry.ts' : file;
+  // WHY: keep the deployed URL config.js while promoting its typed source to the production artifact.
+  const entryFile = file === 'bandplan.js' ? 'bandplan-entry.ts' : file === 'config.js' ? 'config.ts' : file;
   // WHY: generate a fresh shell cache namespace on every build instead of relying on manual SW edits.
   if (file === 'sw.js') {
     const source = await readFile(path.join(root, file), 'utf8');
@@ -46,6 +47,8 @@ for (const file of ['bandplan.js','bandplan-core.js','config.js','supabase.js','
     entryPoints:[path.join(root,entryFile)],
     outfile:path.join(out,file),
     bundle:false,
+    // WHY: config.js is loaded as a classic script; do not emit an ES-module export marker.
+    format: file === 'config.js' ? 'iife' : undefined,
     minify:true,
     target:['es2020','safari15'],
     legalComments:'none',
