@@ -13,6 +13,8 @@ on:
       - migration/typescript-stage-2
       - migration/typescript-stage-3
       - migration/typescript-stage-4
+      - migration/typescript-stage-5
+      - migration/typescript-stage-5
 
 permissions:
   contents: read

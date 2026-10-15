@@ -37,6 +37,13 @@ await new Promise(resolve => server.listen(4173, '127.0.0.1', resolve));
 
 const browser = await chromium.launch({headless: true});
 const page = await browser.newPage();
+// WHY: capture the bootstrap-ready event even when it fires before the app's auth UI appears.
+await page.addInitScript(() => {
+  window.__bandplanCoreLoaderReadyCount = 0;
+  window.addEventListener('bandplan:core-loader-ready', () => {
+    window.__bandplanCoreLoaderReadyCount += 1;
+  });
+});
 const consoleErrors = [];
 const pageErrors = [];
 
@@ -74,8 +81,12 @@ try {
   assert.match(publicConfig.config.supabasePublishableKey, /^sb_publishable_[A-Za-z0-9_-]+$/, 'Publishable key shape changed');
   assert.equal(publicConfig.frozen, true, 'Public client configuration is no longer immutable');
   // WHY: auth initialization may legitimately start the core before this assertion; test the public loader contract, not timing/session races.
-  const lazyCore = await page.evaluate(() => ({ ensureCore: typeof window.__bandplanEnsureCore === 'function' }));
+  const lazyCore = await page.evaluate(() => ({
+    ensureCore: typeof window.__bandplanEnsureCore === 'function',
+    readyEvents: window.__bandplanCoreLoaderReadyCount || 0
+  }));
   assert.equal(lazyCore.ensureCore, true, 'Lazy core loader missing');
+  assert.equal(lazyCore.readyEvents, 1, 'Core-loader-ready event must fire exactly once per page load');
   await page.evaluate(() => window.__bandplanEnsureCore());
   await page.waitForFunction(() => typeof window.BandPlanCloud?.queueEventParticipation === 'function', null, {timeout: 15000});
   const cloudApi = await page.evaluate(() => ({
