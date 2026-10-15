@@ -45,7 +45,7 @@ page.on('pageerror', error => pageErrors.push(error.message));
 
 try {
   await page.goto('http://127.0.0.1:4173/?bandplan-test=1', {waitUntil:'domcontentloaded'});
-  await page.waitForFunction(() => typeof window.BandPlanCloud !== 'undefined', null, {timeout: 15000});
+  try {\n    await page.waitForFunction(() => typeof window.BandPlanCloud !== 'undefined', null, {timeout: 15000});\n  } catch (error) {\n    const diagnostics = await page.evaluate(() => ({\n      url: location.href,\n      scripts: Array.from(document.scripts).map(script => ({src: script.src, type: script.type, loaded: !!script.dataset.loaded})),\n      cloudType: typeof window.BandPlanCloud,\n      config: !!window.BANDPLAN_CONFIG,\n      supabaseSdk: !!window.supabase,\n      configError: window.__bandplanConfigError || false,\n      sdkError: window.__bandplanSupabaseSdkError || false\n    }));\n    throw new Error('BandPlanCloud bootstrap timeout: ' + JSON.stringify({diagnostics, consoleErrors, pageErrors, cause: error.message}));\n  }
   await page.waitForSelector('#bpAuthGate', {state:'visible', timeout: 15000});
   // WHY: auth initialization may legitimately start the core before this assertion; test the public loader contract, not timing/session races.
   const lazyCore = await page.evaluate(() => ({ ensureCore: typeof window.__bandplanEnsureCore === 'function' }));
