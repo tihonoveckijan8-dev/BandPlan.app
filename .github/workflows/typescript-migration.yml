@@ -18,6 +18,7 @@ on:
       - migration/typescript-stage-12
       - migration/typescript-stage-13
       - migration/typescript-stage-14
+      - migration/typescript-stage-15
   push:
     branches:
       - migration/typescript-stage-1
