@@ -25,6 +25,8 @@
     "types/bandplan-globals.d.ts",
     "scripts/build.mjs",
     "server.js",
-    "tests/types/bandplan-cloud-contract.ts"
+    "tests/types/bandplan-cloud-contract.ts",
+    "core/date-utils.ts",
+    "tests/types/bandplan-date-utils-contract.ts"
   ]
 }
