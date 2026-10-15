@@ -3,7 +3,10 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2021", "DOM"],
+    "lib": [
+      "ES2021",
+      "DOM"
+    ],
     "strict": true,
     "allowJs": true,
     "checkJs": true,
@@ -11,5 +14,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["config.js", "config.ts", "capacitor.config.ts", "types/bandplan-globals.d.ts", "scripts/build.mjs"]
+  "include": [
+    "config.js",
+    "config.ts",
+    "capacitor.config.ts",
+    "types/bandplan-globals.d.ts",
+    "scripts/build.mjs",
+    "server.js"
+  ]
 }
