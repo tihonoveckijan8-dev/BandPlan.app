@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["config.js", "config.ts", "capacitor.config.ts", "server.js"]
+  "include": ["config.js", "config.ts", "capacitor.config.ts"]
 }
