@@ -5,7 +5,9 @@ import { extname, join, normalize } from 'node:path';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
-const root = process.cwd();
+// WHY: smoke-test the actual production artifact when available, falling back to source for direct local runs.
+const projectRoot = process.cwd();
+const root = existsSync(join(projectRoot, 'dist', 'index.html')) ? join(projectRoot, 'dist') : projectRoot;
 const mime = {
   '.html':'text/html; charset=utf-8',
   '.js':'text/javascript; charset=utf-8',
@@ -45,7 +47,20 @@ page.on('pageerror', error => pageErrors.push(error.message));
 
 try {
   await page.goto('http://127.0.0.1:4173/?bandplan-test=1', {waitUntil:'domcontentloaded'});
-  await page.waitForFunction(() => typeof window.BandPlanCloud !== 'undefined', null, {timeout: 15000});
+  try {
+    await page.waitForFunction(() => typeof window.BandPlanCloud !== 'undefined', null, {timeout: 15000});
+  } catch (error) {
+    const diagnostics = await page.evaluate(() => ({
+      url: location.href,
+      scripts: Array.from(document.scripts).map(script => ({src: script.src, type: script.type, loaded: !!script.dataset.loaded})),
+      cloudType: typeof window.BandPlanCloud,
+      config: !!window.BANDPLAN_CONFIG,
+      supabaseSdk: !!window.supabase,
+      configError: window.__bandplanConfigError || false,
+      sdkError: window.__bandplanSupabaseSdkError || false
+    }));
+    throw new Error('BandPlanCloud bootstrap timeout: ' + JSON.stringify({diagnostics, consoleErrors, pageErrors, cause: error.message}));
+  }
   await page.waitForSelector('#bpAuthGate', {state:'visible', timeout: 15000});
   // WHY: auth initialization may legitimately start the core before this assertion; test the public loader contract, not timing/session races.
   const lazyCore = await page.evaluate(() => ({ ensureCore: typeof window.__bandplanEnsureCore === 'function' }));
