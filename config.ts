@@ -1,5 +1,7 @@
 /* BandPlan public client configuration. Never place a Supabase service_role secret in browser code. */
 
+export {};
+
 interface BandPlanClientConfig {
   readonly supabaseUrl: string;
   readonly supabasePublishableKey: string;
