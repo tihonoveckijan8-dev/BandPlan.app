@@ -17,3 +17,9 @@ export function parseDuration(value: unknown): number {
   const parsed = parseInt(String(value), 10);
   return Number.isNaN(parsed) ? 0 : parsed;
 }
+
+/** Parse a strict HH:mm clock value to minutes, preserving the legacy zero fallback. */
+export function timeToMinutes(value: unknown): number {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(String(value || '').trim());
+  return match ? Number(match[1]) * 60 + Number(match[2]) : 0;
+}
