@@ -24,6 +24,7 @@
     "capacitor.config.ts",
     "types/bandplan-globals.d.ts",
     "scripts/build.mjs",
-    "server.js"
+    "server.js",
+    "tests/types/bandplan-cloud-contract.ts"
   ]
 }
