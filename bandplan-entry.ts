@@ -22,8 +22,13 @@ interface BandPlanLoaderWindow extends Window {
   const loadCore = (): Promise<unknown> => {
     if (browserWindow.__bandplanCorePromise) return browserWindow.__bandplanCorePromise;
 
+    // WHY: load the small typed utility module before the legacy core, while allowing source-mode runs to fall back safely.
+    const loadDateUtils = (): Promise<void> => import('./core/date-utils.js')
+      .then((module: typeof import('./core/date-utils.js')) => { browserWindow.BandPlanDateUtils = module; })
+      .catch(() => undefined);
+
     // WHY: use a variable path so this small module can be checked independently of the legacy core.
-    browserWindow.__bandplanCorePromise = import(coreModulePath).catch((error: unknown) => {
+    browserWindow.__bandplanCorePromise = loadDateUtils().then(() => import(coreModulePath)).catch((error: unknown) => {
       console.error('BandPlan core failed to load:', error);
       const boot = document.getElementById('boot') as BandPlanBootContainer | null;
       if (boot) {
