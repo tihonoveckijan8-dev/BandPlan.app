@@ -1,0 +1,52 @@
+name: BandPlan Auth Smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Prepare pinned browser assets for this run
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p vendor fonts
+          curl --fail --location --retry 3 --retry-delay 2 "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js" --output vendor/supabase.min.js
+          curl --fail --location --retry 3 --retry-delay 2 "https://cdn.jsdelivr.net/fontsource/fonts/manrope:vf@5.3.0/latin-wght-normal.woff2" --output fonts/manrope-latin-wght-normal.woff2
+          curl --fail --location --retry 3 --retry-delay 2 "https://cdn.jsdelivr.net/fontsource/fonts/manrope:vf@5.3.0/cyrillic-wght-normal.woff2" --output fonts/manrope-cyrillic-wght-normal.woff2
+          test -s vendor/supabase.min.js
+          test -s fonts/manrope-latin-wght-normal.woff2
+          test -s fonts/manrope-cyrillic-wght-normal.woff2
+
+      - name: Install project dependencies and Playwright
+        run: npm install --no-save --no-package-lock playwright@1.63.0
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: find . -path ./node_modules -prune -o -path ./.git -prune -o -name '*.js' -print0 | xargs -0 -n1 node --check
+
+      - name: Verify production build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser smoke test
+        run: node tests/smoke.mjs
