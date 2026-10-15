@@ -35,7 +35,7 @@ for(const match of cssOutsideTokens.matchAll(/#[0-9A-Fa-f]{3,8}\\b|rgba?\\([^)]*
   const open=before.lastIndexOf('{');
   const close=before.lastIndexOf('}');
   const selector=before.slice(close+1,open).trim();
-  const allowed=/:root|\\[data-theme|body\\.theme-|\\.accent-dropdown|\\.part-switch|color-picker|custom-color|accent-picker|\\.bp-auth-google|\\.bp-auth-divider/.test(selector);
+  const allowed=/:root|\[data-theme|body\.theme-|\.accent-dropdown|\.part-switch|color-picker|custom-color|accent-picker|\.bp-auth-google|\.bp-auth-divider/.test(selector);
   if(!allowed)cssColorViolations.push(selector.slice(-90)+': '+match[0]);
 }
 assert.equal(cssColorViolations.length,0,'Hardcoded CSS colors outside the canonical token layer or scoped legacy exceptions: '+cssColorViolations.slice(0,20).join(', '));
