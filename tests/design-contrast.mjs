@@ -5,7 +5,25 @@ const css=fs.readFileSync('bandplan.css','utf8');
 const tokenStart=css.indexOf('@layer tokens{');
 const baseStart=css.indexOf('@layer base{', tokenStart);
 assert.ok(tokenStart>=0 && baseStart>tokenStart,'Canonical token layer is missing or misplaced');
-const cssOutsideTokens=css.slice(baseStart);
+// Strip every token layer with brace-aware scanning: the stylesheet has
+// multiple token layers interleaved with base/components layers.
+function stripTokenLayers(source){
+  let out='', cursor=0;
+  while(cursor<source.length){
+    const start=source.indexOf('@layer tokens{',cursor);
+    if(start<0){out+=source.slice(cursor);break;}
+    out+=source.slice(cursor,start);
+    const open=source.indexOf('{',start);
+    let depth=0,end=open;
+    for(;end<source.length;end++){
+      if(source[end]==='{')depth++;
+      else if(source[end]==='}' && --depth===0){end++;break;}
+    }
+    cursor=end;
+  }
+  return out;
+}
+const cssOutsideTokens=stripTokenLayers(css);
 const cssColorLiterals=[...cssOutsideTokens.matchAll(/#[0-9A-Fa-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)/g)].map(m=>m[0]);
 assert.equal(cssColorLiterals.length,0,'Hardcoded CSS colors outside the canonical token layer: '+cssColorLiterals.slice(0,20).join(', '));
 const sources=['bandplan-core.js','bandplan.js','supabase.js','index.html'];
