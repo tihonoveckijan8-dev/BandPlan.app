@@ -20,6 +20,16 @@ interface BandPlanCloudLoadResult {
   readonly updatedAt: string;
 }
 
+/** Realtime payload emitted by Supabase for participation changes. */
+interface BandPlanParticipationChange {
+  readonly group_id?: string | null;
+  readonly event_id: string;
+  readonly user_id: string;
+  readonly status: string;
+  readonly updated_at: string;
+  readonly deleted?: boolean;
+}
+
 /**
  * Public surface assigned by supabase.js to window.BandPlanCloud.
  * WHY: keep the browser-facing contract explicit before gradually checking the
@@ -34,16 +44,12 @@ interface BandPlanCloudRuntime {
   schedule?: (state: Record<string, unknown>) => void;
   subscribe?: (
     onState: (state: Record<string, unknown>, updatedAt?: string) => void,
-    onParticipation?: (event: unknown) => void
+    onParticipation?: (change: BandPlanParticipationChange) => void
   ) => () => void;
   signOut?: () => Promise<void>;
   leaveGroup?: () => Promise<unknown>;
   joinGroup?: (code: string, name: string, roles: string[]) => Promise<unknown>;
-  setEventParticipation?: (
-    eventId: string,
-    status: BandPlanParticipationStatus,
-    updatedAt?: string
-  ) => Promise<unknown>;
+  setEventParticipation?: (eventId: string, status: BandPlanParticipationStatus, updatedAt?: string) => Promise<unknown>;
   queueEventParticipation?: (
     eventId: string,
     status: BandPlanParticipationStatus,
